@@ -458,7 +458,7 @@ func (r *Repository) CreateBranch(rbo *RepositoryBranchCreationOptions) (*Reposi
 	return decodeRepositoryBranchCreated(bodyString)
 }
 
-func (r *Repository) CreateBranchServer(rbo *RepositoryBranchCreationOptions) (*RepositoryBranch, error) {
+func (r *Repository) APIv1CreateBranch(rbo *RepositoryBranchCreationOptions) (*RepositoryBranch, error) {
 	body := map[string]interface{}{
 		"name":  rbo.Name,
 		"title": rbo.Title,
@@ -522,11 +522,16 @@ func (r *Repository) ListTags(rbo *RepositoryTagOptions) (*RepositoryTags, error
 	}
 
 	urlStr := r.c.requestUrl("/repositories/%s/%s/refs/tags?%s", rbo.Owner, rbo.RepoSlug, params.Encode())
-	response, err := r.c.executePaginated("GET", urlStr, "")
+	response, err := r.c.executeRaw("GET", urlStr, "")
 	if err != nil {
 		return nil, err
 	}
-	return decodeRepositoryTags(response)
+	bodyBytes, err := ioutil.ReadAll(response)
+	if err != nil {
+		return nil, err
+	}
+	bodyString := string(bodyBytes)
+	return decodeRepositoryTags(bodyString)
 }
 
 func (r *Repository) CreateTag(rbo *RepositoryTagCreationOptions) (*RepositoryTag, error) {
@@ -1237,13 +1242,19 @@ func decodeRepositoryTagCreated(tagResponseStr string) (*RepositoryTag, error) {
 	return &responseTagCreated, nil
 }
 
-func decodeRepositoryTags(tagResponse interface{}) (*RepositoryTags, error) {
-	tagResponseMap := tagResponse.(map[string]interface{})
+func decodeRepositoryTags(tagResponseStr string) (*RepositoryTags, error) {
+
+	var tagResponseMap map[string]interface{}
+	err := json.Unmarshal([]byte(tagResponseStr), &tagResponseMap)
+	if err != nil {
+		return nil, err
+	}
+
 	tagArray := tagResponseMap["values"].([]interface{})
 	var tags []RepositoryTag
 	for _, tagEntry := range tagArray {
 		var tag RepositoryTag
-		err := mapstructure.Decode(tagEntry, &tag)
+		err = mapstructure.Decode(tagEntry, &tag)
 		if err == nil {
 			tags = append(tags, tag)
 		}

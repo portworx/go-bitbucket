@@ -10,8 +10,8 @@ type PullRequests struct {
 	c *Client
 }
 
-// CreateSever implements BitBucket Server API
-func (p *PullRequests) CreateSever(po *PullRequestsOptions) (interface{}, error) {
+// APIv1Create implements BitBucket Server API
+func (p *PullRequests) APIv1Create(po *PullRequestsOptions) (interface{}, error) {
 	// more details here https://developer.atlassian.com/server/bitbucket/rest/v803/api-group-projects/#api-projects-projectkey-repos-repositoryslug-pull-requests-post
 	body := map[string]interface{}{
 		"title":          po.Title,
@@ -113,14 +113,14 @@ func (p *PullRequests) Gets(po *PullRequestsOptions) (interface{}, error) {
 	return p.c.executePaginated("GET", urlStr, "")
 }
 
-// GetServer implements Pull Request Get API for BitBucket server API 1.0
-func (p *PullRequests) GetServer(po *PullRequestsOptions) (interface{}, error) {
+// APIv1Get implements Pull Request Get API for BitBucket server API 1.0
+func (p *PullRequests) APIv1Get(po *PullRequestsOptions) (interface{}, error) {
 	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/?state=ALL", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug)
 	return p.c.execute("GET", urlStr, "")
 }
 
-// DeleteServer implements Pull Request Delete API for BitBucket server API 1.0
-func (p *PullRequests) DeleteServer(po *PullRequestsOptions) (interface{}, error) {
+// APIv1Delete implements Pull Request Delete API for BitBucket server API 1.0
+func (p *PullRequests) APIv1Delete(po *PullRequestsOptions) (interface{}, error) {
 	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.ID)
 	return p.c.execute("DELETE", urlStr, "")
 }
