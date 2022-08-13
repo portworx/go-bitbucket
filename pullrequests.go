@@ -119,6 +119,13 @@ func (p *PullRequests) APIv1Get(po *PullRequestsOptions) (interface{}, error) {
 	return p.c.execute("GET", urlStr, "")
 }
 
+// APIv1GetForBranch implements Pull Request Get for a specific branch for BitBucket server API 1.0
+func (p *PullRequests) APIv1GetForBranch(po *PullRequestsOptions) (interface{}, error) {
+	// WARN: undocumented feature get PRs for a branch, expect surprizes
+	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/?state=ALL&to=refs/heads/%s", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.SourceBranch)
+	return p.c.execute("GET", urlStr, "")
+}
+
 // APIv1Delete implements Pull Request Delete API for BitBucket server API 1.0
 func (p *PullRequests) APIv1Delete(po *PullRequestsOptions) (interface{}, error) {
 	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.ID)
