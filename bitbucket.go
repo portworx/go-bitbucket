@@ -295,6 +295,8 @@ type PullRequestsOptions struct {
 	ScmID       string `json:"scmId"`
 	FromRefName string `json:"name"`
 	ToRefName   string `json:"name"`
+	Version     int    `json:"version"`
+	Comment     string `json:"comment"`
 }
 
 type PullRequestCommentOptions struct {

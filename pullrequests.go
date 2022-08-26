@@ -119,17 +119,23 @@ func (p *PullRequests) APIv1Get(po *PullRequestsOptions) (interface{}, error) {
 	return p.c.execute("GET", urlStr, "")
 }
 
-// APIv1GetForBranch implements Pull Request Get for a specific branch for BitBucket server API 1.0
-func (p *PullRequests) APIv1GetForBranch(po *PullRequestsOptions) (interface{}, error) {
-	// WARN: undocumented feature get PRs for a branch, expect surprizes
-	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/?state=ALL&to=refs/heads/%s", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.SourceBranch)
-	return p.c.execute("GET", urlStr, "")
-}
-
 // APIv1Delete implements Pull Request Delete API for BitBucket server API 1.0
 func (p *PullRequests) APIv1Delete(po *PullRequestsOptions) (interface{}, error) {
+	body := map[string]interface{}{}
+	body["version"] = po.Version
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return "", err
+	}
+
 	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.ID)
-	return p.c.execute("DELETE", urlStr, "")
+	return p.c.execute("DELETE", urlStr, string(data))
+}
+
+func (p *PullRequests) API1v1GetActivities(po *PullRequestsOptions) (interface{}, error) {
+	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s/activities", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.ID)
+	return p.c.execute("GET", urlStr, "")
 }
 
 func (p *PullRequests) Get(po *PullRequestsOptions) (interface{}, error) {
