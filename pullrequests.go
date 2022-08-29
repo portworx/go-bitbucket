@@ -138,6 +138,21 @@ func (p *PullRequests) API1v1GetActivities(po *PullRequestsOptions) (interface{}
 	return p.c.execute("GET", urlStr, "")
 }
 
+func (p *PullRequests) APIv1Decline(po *PullRequestsOptions) (interface{}, error) {
+	body := map[string]interface{}{}
+	body["version"] = po.Version
+	body["state"] = "DECLINED"
+	body["comment"] = po.Comment
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return "", err
+	}
+
+	urlStr := fmt.Sprintf("%s/rest/api/1.0/projects/%s/repos/%s/pull-requests/%s/decline", p.c.GetApiBaseURL(), po.ProjectKey, po.RepoSlug, po.ID)
+	return p.c.execute("POST", urlStr, string(data))
+}
+
 func (p *PullRequests) Get(po *PullRequestsOptions) (interface{}, error) {
 	urlStr := p.c.GetApiBaseURL() + "/repositories/" + po.Owner + "/" + po.RepoSlug + "/pullrequests/" + po.ID
 	return p.c.execute("GET", urlStr, "")
