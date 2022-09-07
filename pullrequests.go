@@ -13,6 +13,7 @@ type PullRequests struct {
 // APIv1Create implements BitBucket Server API
 func (p *PullRequests) APIv1Create(po *PullRequestsOptions) (interface{}, error) {
 	// more details here https://developer.atlassian.com/server/bitbucket/rest/v803/api-group-projects/#api-projects-projectkey-repos-repositoryslug-pull-requests-post
+	reviewers := buildReviewers(po.Reviewers)
 	body := map[string]interface{}{
 		"title":          po.Title,
 		"projectKey":     po.ProjectKey,
@@ -41,6 +42,7 @@ func (p *PullRequests) APIv1Create(po *PullRequestsOptions) (interface{}, error)
 				},
 			},
 		},
+		"reviewers":   reviewers,
 		"type":        "BRANCH",
 		"description": po.Description,
 	}
@@ -346,4 +348,23 @@ func (p *PullRequests) buildPullRequestCommentBody(co *PullRequestCommentOptions
 	}
 
 	return string(data), nil
+}
+
+func buildReviewers(defaultReviewers []string) []map[string]interface{} {
+	var reviewers []map[string]interface{}
+	for _, reviewer := range defaultReviewers {
+		map1 := map[string]interface{}{
+			"approved": true,
+			"status":   "UNAPPROVED",
+			"role":     "AUTHOR",
+			"user": map[string]interface{}{
+				"slug":        reviewer,
+				"active":      true,
+				"name":        reviewer,
+				"type":        "NORMAL",
+				"displayName": reviewer,
+			}}
+		reviewers = append(reviewers, map1)
+	}
+	return reviewers
 }
