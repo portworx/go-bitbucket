@@ -31,10 +31,10 @@ type UnexpectedResponseStatusError struct {
 }
 
 func (e *UnexpectedResponseStatusError) Error() string {
-	return e.Status
+	return e.ErrorWithBody().Error()
 }
 
 // ErrorWithBody returns an error with the given status and body.
 func (e *UnexpectedResponseStatusError) ErrorWithBody() error {
-	return fmt.Errorf("unexpected status %s, body: %s", e.Status, string(e.Body))
+	return fmt.Errorf("rror status %s, error body: %s", e.Status, string(e.Body))
 }
